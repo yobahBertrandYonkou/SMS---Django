@@ -1,0 +1,178 @@
+{% extends 'staff_templates/base.html' %}
+
+{% load static %}
+
+{% block page_title %} Update Attendance {% endblock %}
+
+{% block main_content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- general form elements -->
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Update Attendance</h3>
+                        {% if messages %}
+                        <div class="col-12">
+                            {% for message in messages %}
+                            {% if message.tags  == "error" %}
+                                <div style="color: rgb(255, 125, 125);" class="float-right"> {{ message }} </div>
+                            {% else %}
+                                <div style="color: rgb(126, 255, 126);" class="float-right"> {{ message }} </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                  <!-- /.card-header -->
+                    <div class="card-body">
+                    <!-- form start -->
+                        {% csrf_token  %}
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
+                                {% for subject in subjects %}
+                                    <option value="{{ subject.id }}"> {{ subject.subject_name }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Attendance Date</label>
+                            <select type="text" class="form-control" name="attendance_date" id="attendance_date" placeholder="SAttendance Date" required>
+                                {% for session in sessions %}
+                                    <option value="{{ session.id }}"> {{ session.session_start_year }} TO {{ session.session_end_year }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer">
+                        <button type="submit" id="fetch-students" class="btn btn-primary btn-block">Fetch Students</button>
+                    </div>
+
+                    <div style="display: none;" class="card-footer" id="attendance-section">
+                        <div class="form-group">
+                            <label>Attendance Date</label>
+                            <input type="date" class="form-control" id="attendance-date">
+                        </div>
+                        <div class="form-group">
+                            <div class="row" id="students-container">
+                                        
+                            </div>
+                        </div>
+                        <button id="save-attendance" class="btn btn-success btn-block">Save Attendance</button>
+                    </div>
+                <!-- /.card -->
+            </div>
+        </div>
+    </div>
+  </section>
+
+{% endblock main_content %}
+{% block custom_js %}
+  <!-- <script>
+      console.log("here now");
+      var domStrings = {
+        fetchStudents: document.getElementById('fetch-students'),
+        subject: document.getElementById('subject'),
+        sessionYear: document.getElementById('session_year'),
+        attendanceSection: document.getElementById('attendance-section'),
+        students: document.getElementById('students-container'),
+        saveAttendance: document.getElementById('save-attendance'),
+        attendanceDate: document.getElementById('attendance-date'),
+      }
+      
+          domStrings.fetchStudents.onclick = async ()=>{
+              var options = {
+                  url: "{% url 'get_students' %}",
+                  type: "POST",
+                  data: {
+                      subject: domStrings.subject.value,
+                      session_year: domStrings.sessionYear.value
+                  }
+              }
+              $.ajax(options).done((response)=>{
+                  //display's attendance section
+                  domStrings.attendanceSection.style.display = 'block';
+                  //sets default date to today's date
+                  var date = new Date();
+                  domStrings.attendanceDate.value = `${date.getFullYear()}-${(date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1) }-${date.getDate()}`;
+                  //clears students list
+                  domStrings.students.innerHTML = "";
+
+                  //loads students
+                  response.forEach(student => {
+                      domStrings.students.insertAdjacentHTML('beforeend',`
+                        <div class="col-sm-12 col-md-6 col-lg-4">
+                            <div class="form-check">
+                                <label class="form-check-label"><input name="student_details[]" type="checkbox" value="${student.id}" checked> ${student.name}</label>
+                            </div>
+                        </div>
+                        `);
+                  });
+              }).fail((response)=>console.log(response));
+              //send a request to /get_students
+            //   var queryString = `?subject=${domStrings.subject.value}&session_year=${domStrings.sessionYear.value}`;
+            //   await fetch(`{% url 'get_students' %}${queryString}`).then((value)=>value.json())
+            //   .then((value)=>{
+            //       //display's attendance section
+            //       domStrings.attendanceSection.style.display = 'block';
+                
+            //       //clears students list
+            //       domStrings.students.innerHTML = "";
+
+            //       //loads students
+            //       value.forEach(student => {
+            //           domStrings.students.insertAdjacentHTML('beforeend',`
+            //             <div class="col-sm-12 col-md-6 col-lg-4">
+            //                 <div class="form-check">
+            //                     <label class="form-check-label"><input name="student_details[]" type="checkbox" value="${student.id}" checked> ${student.name}</label>
+            //                 </div>
+            //             </div>
+            //             `);
+            //       });
+            //   }).catch((onError)=>{
+            //     alert("Sorry, an error occured.");
+            //     window.location.reload();
+            //   });
+          }
+
+          domStrings.saveAttendance.onclick = async ()=>{
+              domStrings.saveAttendance.setAttribute("disabled", "disabled")
+              domStrings.saveAttendance.textContent = "Saving Attendance..."
+              //generating attendance data {"id": <>, "status": 0 or 1} 0 = abscent, 1 = present
+              var studentData = []
+              document.querySelectorAll("input[name='student_details[]']").forEach(student=>{
+                  var temp = {"id": student.value, "status": student.checked ? 0 : 1}
+                  studentData.push(temp)
+              })
+              console.log(studentData)
+              
+
+              //sending data for storage
+              var options = {
+                  url: "{% url 'save_attendance_details' %}",
+                  type: "POST",
+                  data: {
+                      student_data: JSON.stringify(studentData),
+                      attendance_date: domStrings.attendanceDate.value,
+                      subject: domStrings.subject.value,
+                      session_year: domStrings.sessionYear.value
+                  }
+              }
+              $.ajax(options).done((response)=>{
+               if(response == "OK"){
+                   alert("Attendence Succeffully Saved");
+               }else{
+                   alert("Failed to save attendance");
+               }
+               window.location.reload();
+              }).fail((response)=>{
+                  alert("Failed to save attendance");
+                  window.location.reload();
+              })
+          }
+  </script> -->
+{% endblock custom_js %}

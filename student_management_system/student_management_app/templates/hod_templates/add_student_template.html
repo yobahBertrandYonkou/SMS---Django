@@ -1,0 +1,40 @@
+{% extends 'hod_templates/base.html' %}
+
+{% load static %}
+
+{% block page_title %} Add Student {% endblock %}
+
+{% block main_content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- general form elements -->
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h3 class="card-title">Add Student</h3>
+                    {% if messages %}
+                    <div class="col-12">
+                        {% for message in messages %}
+                        {% if message.tags  == "error" %}
+                            <div style="color: rgb(255, 125, 125);" class="float-right"> {{ message }} </div>
+                        {% else %}
+                            <div style="color: rgb(126, 255, 126);" class="float-right"> {{ message }} </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                  <!-- /.card-header -->
+                  <!-- form start -->
+                  {% url 'add_student_save' as action_path %}
+                  {% include 'hod_templates/form_template.html' with messages=messages form=form action_path=action_path button_text="Add Student" %}
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+    </div>
+  </section>
+
+{% endblock main_content %}

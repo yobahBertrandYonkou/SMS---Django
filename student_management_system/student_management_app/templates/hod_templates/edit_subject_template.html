@@ -1,0 +1,68 @@
+{% extends 'hod_templates/base.html' %}
+
+{% load static %}
+
+{% block page_title %} Edit Subject {% endblock %}
+
+{% block main_content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- general form elements -->
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h3 class="card-title">Edit Subject</h3>
+                    {% if messages %}
+                    <div class="col-12">
+                        {% for message in messages %}
+                        {% if message.tags  == "error" %}
+                            <div style="color: rgb(255, 125, 125);" class="float-right"> {{ message }} </div>
+                        {% else %}
+                            <div style="color: rgb(126, 255, 126);" class="float-right"> {{ message }} </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                  <!-- /.card-header -->
+                  <!-- form start -->
+                  <form role="form" action="/edit_subject_save/{{ subject.id }}" method="POST">
+                    {% csrf_token  %}
+                    <div class="card-body">
+                      <div class="form-group">
+                        <label>Subject Name</label>
+                        <input value="{{ subject.subject_name }}" type="text" class="form-control" name="subject_name" placeholder="Subject Name">
+                      </div>
+                      <div class="form-group">
+                        <label>Course</label>
+                        <select type="text" class="form-control" name="course" placeholder="Course" required>
+                            <option selected disabled>-- Course --</option>
+                            {% for course in courses %}
+                                <option value="{{ course.id }}" {% if subject.course_id.id == course.id %} selected {% endif %}> {{ course.course_name }} </option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>Staff</label>
+                        <select type="text" class="form-control" name="staff" placeholder="Staff" required>
+                            <option selected disabled>-- Staff --</option>
+                            {% for staff in staffs %}
+                                <option value="{{ staff.id }}" {% if subject.staff_id.id == staff.id %} selected {% endif %} > {{ staff.first_name }} {{ staff.last_name }} </option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer">
+                      <button type="submit" class="btn btn-primary btn-block">Edit Subject</button>
+                    </div>
+                  </form>
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+    </div>
+  </section>
+
+{% endblock main_content %}

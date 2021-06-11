@@ -1,0 +1,71 @@
+{% extends 'hod_templates/base.html' %}
+
+{% load static %}
+
+{% block page_title %} Edit Staff {% endblock %}
+
+{% block main_content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- general form elements -->
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h3 class="card-title">Edit Staff - <span style="font-weight: lighter;">{{ staff.admin.username }}</span> </h3>
+                    {% if messages %}
+                    <div class="col-12">
+                        {% for message in messages %}
+                        {% if message.tags  == "error" %}
+                            <div style="color: rgb(255, 125, 125);" class="float-right"> {{ message }} </div>
+                        {% else %}
+                            <div style="color: rgb(109, 218, 109);" class="float-right"> {{ message }} </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                  <!-- /.card-header -->
+                  <!-- form start -->
+                  <form role="form" action="/edit_staff_save/{{ staff.admin.id }}" method="POST">
+                    {% csrf_token  %}
+                    <div class="card-body">
+                      <div class="form-group">
+                        <label>Email address</label>
+                        <input value="{{ staff.admin.email }}" type="email" class="form-control" name="email" placeholder="Enter email">
+                      </div>
+                      <div class="form-group">
+                        <label>Password</label>
+                        <input value="{{ staff.admin.password }}" type="password" class="form-control" name="password" placeholder="Password" disabled>
+                      </div>
+                      <div class="form-group">
+                        <label>First Name</label>
+                        <input value="{{ staff.admin.first_name }}" type="text" class="form-control" name="first_name" placeholder="First name">
+                      </div>
+                      <div class="form-group">
+                        <label>Last Name</label>
+                        <input value="{{ staff.admin.last_name}}" type="text" class="form-control" name="last_name" placeholder="Last Name">
+                      </div>
+                      <div class="form-group">
+                        <label>Username</label>
+                        <input value="{{ staff.admin.username }}" type="text" class="form-control" name="username" placeholder="Username">
+                      </div>
+                      <div class="form-group">
+                        <label>Address</label>
+                        <input value="{{ staff.address }}" type="text" class="form-control" name="address" placeholder="Address">
+                      </div>
+                    <!-- /.card-body -->
+    
+                    <div class="card-footer">
+                      <button type="submit" class="btn btn-primary btn-block">Edit Staff</button>
+                    </div>
+                  </form>
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+    </div>
+  </section>
+
+{% endblock main_content %}
