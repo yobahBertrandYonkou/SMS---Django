@@ -3,6 +3,8 @@ from django.db.models.fields import DateField
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser
+
+
 # Create your models here.
 
 class SessionStartModel(models.Model):
@@ -10,6 +12,7 @@ class SessionStartModel(models.Model):
     session_start_year = models.DateField()
     session_end_year = models.DateField()
     object = models.Manager()
+
 
 class CustomUser(AbstractUser):
     user_type_data = (
@@ -28,20 +31,22 @@ class AdminHOD(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+
 class Staffs(models.Model):
     id = models.AutoField(primary_key=True)
     address = models.TextField(max_length=255)
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class Courses(models.Model):
     id = models.AutoField(primary_key=True)
     course_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
 
 
 class Subjects(models.Model):
@@ -51,7 +56,8 @@ class Subjects(models.Model):
     staff_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class Students(models.Model):
     id = models.AutoField(primary_key=True)
@@ -64,6 +70,7 @@ class Students(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+
 class Attendance(models.Model):
     id = models.AutoField(primary_key=True)
     subject_id = models.ForeignKey(Subjects, on_delete=models.DO_NOTHING)
@@ -71,7 +78,8 @@ class Attendance(models.Model):
     attendance_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class AttendanceReport(models.Model):
     id = models.AutoField(primary_key=True)
@@ -80,7 +88,8 @@ class AttendanceReport(models.Model):
     status = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class LeaveReportStudent(models.Model):
     id = models.AutoField(primary_key=True)
@@ -90,7 +99,8 @@ class LeaveReportStudent(models.Model):
     leave_message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class LeaveReportStaffs(models.Model):
     id = models.AutoField(primary_key=True)
@@ -100,7 +110,8 @@ class LeaveReportStaffs(models.Model):
     leave_message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class FeedBackStudents(models.Model):
     id = models.AutoField(primary_key=True)
@@ -109,7 +120,8 @@ class FeedBackStudents(models.Model):
     feedback_reply = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class FeedBackStaffs(models.Model):
     id = models.AutoField(primary_key=True)
@@ -118,7 +130,8 @@ class FeedBackStaffs(models.Model):
     feedback_reply = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class NotificationStaffs(models.Model):
     id = models.AutoField(primary_key=True)
@@ -126,7 +139,8 @@ class NotificationStaffs(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 class NotificationStudents(models.Model):
     id = models.AutoField(primary_key=True)
@@ -134,19 +148,22 @@ class NotificationStudents(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    objects =  models.Manager()
+    objects = models.Manager()
+
 
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         if instance.user_type == 1:
             AdminHOD.objects.create(admin=instance)
-        
+
         if instance.user_type == 2:
             Staffs.objects.create(admin=instance, address="")
-        
+
         if instance.user_type == 3:
-            Students.objects.create(admin=instance, course_id=Courses.objects.get(id=1), session_year_id=SessionStartModel.object.get(id=1), address="", profile_pic="")
+            Students.objects.create(admin=instance, course_id=Courses.objects.get(id=1),
+                                    session_year_id=SessionStartModel.object.get(id=1), address="", profile_pic="")
+
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
@@ -155,6 +172,6 @@ def save_user_profile(sender, instance, **kwargs):
 
     if instance.user_type == 2:
         instance.staffs.save()
- 
+
     if instance.user_type == 3:
         instance.students.save()
